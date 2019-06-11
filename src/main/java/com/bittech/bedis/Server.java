@@ -1,5 +1,6 @@
 package com.bittech.bedis;
 
+import com.bittech.bedis.exceptions.BedisException;
 import com.bittech.bedis.commands.ICommand;
 import com.bittech.bedis.io.BedisInputStream;
 import com.bittech.bedis.io.BedisOutputStream;
@@ -12,7 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-    private static Logger logger = LoggerFactory.getLogger("bedis");
+    private static final Logger logger = LoggerFactory.getLogger("bedis");
 
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(9988);
@@ -24,10 +25,15 @@ public class Server {
             BedisOutputStream os = new BedisOutputStream(clientSocket.getOutputStream());
 
             while (true) {
-                ICommand command = Protocol.readCommand(is);
-                logger.info("运行命令: " + command.getName());
-                command.process(os);
-                os.flush();
+                try {
+                    ICommand command = Protocol.readCommand(is);
+                    logger.info("运行命令: " + command.getName());
+                    command.process(os);
+                    os.flush();
+                } catch (BedisException e) {
+                    Protocol.writeError(os, e.getMessage());
+                    os.flush();
+                }
             }
         }
     }

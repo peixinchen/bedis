@@ -14,7 +14,8 @@ import java.util.Scanner;
 public class Client {
     public static void main(String[] args) throws IOException {
         String host = "127.0.0.1"; //args[0];
-        int port = 9988;    //Integer.parseInt(args[1]);
+        //int port = 9988;    //Integer.parseInt(args[1]);
+        int port = 6379;
 
         Socket socket = new Socket(host, port);
         BedisInputStream is = new BedisInputStream(socket.getInputStream());
@@ -31,14 +32,7 @@ public class Client {
             command.readArgs(scanner);
             Protocol.writeCommand(os, command);
             os.flush();
-            Object o = Protocol.read(is);
-            if (o instanceof BedisException) {
-                throw (BedisException)o;
-            }
-
-            Long len = (Long)o;
-
-            System.out.printf("(integer) %d%n", len);
+            command.displayReply(is);
         }
     }
 }

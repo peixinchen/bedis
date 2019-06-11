@@ -48,9 +48,17 @@ public class LLENCommand extends AbstractCommand {
         int len = 0;
         List<String> list = BedisDatabase.getList(key);
         if (list != null) {
-            len = list.size();
+            synchronized (list) {
+                len = list.size();
+            }
         }
 
         Protocol.writeLong(os, len);
+    }
+
+    @Override
+    protected void displayReplyInner(Object object) throws BedisException {
+        Long len = (Long)object;
+        System.out.println("(integer) " + len);
     }
 }

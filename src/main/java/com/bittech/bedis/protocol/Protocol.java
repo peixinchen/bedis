@@ -70,7 +70,7 @@ public class Protocol {
 
     public static void writeList(BedisOutputStream os, List<Object> list) throws BedisException {
         os.write('*');
-        os.write(list.size());
+        os.writeLong(list.size());
         os.writeCrLf();
 
         for (Object o : list) {
